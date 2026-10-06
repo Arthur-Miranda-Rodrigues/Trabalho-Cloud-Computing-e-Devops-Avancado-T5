@@ -41,3 +41,13 @@ jobs:
         with:
           name: biblioteca-app-${{ github.sha }}
           path: target/*.jar
+
+      # 7. Build da Imagem Docker
+      - name: Build da Imagem Docker
+        run: docker build -t biblioteca-app:${{ github.sha }} .
+
+      # 8. Validação dos Manifestos Kubernetes
+      - name: Validar Manifestos Kubernetes
+        run: |
+          kubectl apply --dry-run=client -f k8s/deployment.yaml
+          kubectl apply --dry-run=client -f k8s/service.yaml
