@@ -12,11 +12,11 @@
 
 ## 👥 Equipe
 
-* **Arthur Miranda Rodrigues**
+* **Arthur Miranda Rodrigues — RA: 14538** 
 
-* **Alexandre**
+* **Alexandre Aizono — RA: 240034**
 
-* **Heitor**
+* **Heitor dos Santos Corrêa — RA: 14625**
 
 
 ## 📌 1. Escopo e Objetivos do Trabalho
