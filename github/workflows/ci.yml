@@ -1,0 +1,43 @@
+name: CI Pipeline - T5
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código-fonte
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      # 2. Configuração do ambiente Java (JDK 17)
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      # 3. Permissão de execução para o wrapper do Maven (mvnw)
+      - name: Dar permissão de execução ao mvnw
+        run: chmod +x mvnw
+
+      # 4. Compilação e Execução de Testes
+      - name: Build e Testes com Maven
+        run: ./mvnw clean test
+
+      # 5. Empacotamento do JAR (Build)
+      - name: Gerar Pacote JAR
+        run: ./mvnw package -DskipTests
+
+      # 6. Upload do Artefato GERADO (JAR)
+      - name: Armazenar Artefato (JAR)
+        uses: actions/upload-artifact@v4
+        with:
+          name: biblioteca-app-${{ github.sha }}
+          path: target/*.jar

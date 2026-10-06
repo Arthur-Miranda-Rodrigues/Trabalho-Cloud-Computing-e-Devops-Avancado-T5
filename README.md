@@ -172,8 +172,9 @@ Para validar os critérios exigidos pelo professor no T5, siga os procedimentos 
 1. Clonar o repositório:
 
    ```
-   git clone https://github.com/Arthur-Miranda-Rodrigues/Trabalho-Cloud-Computing-e-DevOps-Avan-ado-T5.git
-   cd Trabalho-Cloud-Computing-e-DevOps-Avan-ado-T5
+   git clone https://github.com/Arthur-Miranda-Rodrigues/Trabalho-Cloud-Computing-e-DevOps-Avançado-T5.git
+   cd Trabalho-Cloud-Computing-e-Devops-Avancado-T5
+
    
    ```
 
