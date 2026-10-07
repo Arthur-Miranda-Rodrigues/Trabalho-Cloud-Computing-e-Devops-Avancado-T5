@@ -7,7 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 class BibliotecaApplicationTests {
 
 	@Test
-	void contextLoads() {
+			Assertions.assertEquals(1, 2, "Simulação de falha controlada para o trabalho de CI/CD") {
 	}
+
 
 }
