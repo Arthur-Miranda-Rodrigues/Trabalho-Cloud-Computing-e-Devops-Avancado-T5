@@ -5,17 +5,36 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
+  workflow_dispatch:
+
+# Menor privilégio: o job só precisa ler o repositório
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    # Versão do runner fixada (ubuntu-latest muda sem aviso)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
 
     steps:
-      # 1. Checkout do código-fonte
+      # 1. Checkout do código-fonte (versão exata do commit)
       - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      # 2. Configuração do ambiente Java (JDK 17) com Cache Maven
+      # 2. Validação inicial: falha cedo se houver segredo fixo no código
+      - name: Verificar segredos fixos no código
+        run: |
+          if grep -rEn 'secret[[:space:]]*=[[:space:]]*[^$[:space:]]' src/main/resources; then
+            echo "::error::Segredo fixo encontrado em src/main/resources. Use variável de ambiente (ex.: \${JWT_SECRET})."
+            exit 1
+          fi
+
+      # 3. Ambiente Java (JDK 17) com cache Maven
       - name: Configurar JDK 17
         uses: actions/setup-java@v4
         with:
@@ -23,21 +42,31 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # 3. Permissão de execução para o wrapper do Maven (mvnw)
+      # 4. Permissão de execução para o wrapper do Maven
       - name: Dar permissão de execução ao mvnw
         run: chmod +x mvnw
 
-      # 4. Compilação e Execução de Testes
+      # 5. Compilação e testes (falha interrompe o job)
       - name: Build e Testes com Maven
-        run: ./mvnw clean test
+        run: ./mvnw --batch-mode clean test
 
-      # 5. Empacotamento do JAR (Build)
+      # 6. Evidência: relatórios de teste (também quando os testes falham)
+      - name: Armazenar relatórios de teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-testes-${{ github.sha }}
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+
+      # 7. Empacotamento do JAR
       - name: Gerar Pacote JAR
-        run: ./mvnw package -DskipTests
+        run: ./mvnw --batch-mode package -DskipTests
 
-      # 6. Upload do Artefato GERADO (JAR)
+      # 8. Artefato identificado pelo SHA do commit
       - name: Armazenar Artefato (JAR)
         uses: actions/upload-artifact@v4
         with:
           name: biblioteca-app-${{ github.sha }}
           path: target/*.jar
+          if-no-files-found: error
