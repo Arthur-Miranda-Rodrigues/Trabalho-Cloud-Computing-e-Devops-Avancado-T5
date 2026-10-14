@@ -33,7 +33,7 @@ Implementar e documentar um pipeline de **Integração Contínua (CI)** mínimo,
 * [x] Cache de dependências Maven (`setup-java` com `cache: maven`).
 * [x] Detecção básica de segredos fixos (etapa "Verificar segredos fixos no código").
 * [x] Relatórios de teste (Surefire) publicados como evidência, inclusive em falha.
-* [ ] Análise estática de código (fora do escopo desta entrega).
+* [] Análise estática de código (fora do escopo desta entrega).
 * [ ] Construção/publicação de imagem Docker (escopo futuro / CD; o `Dockerfile` existe, mas não faz parte deste pipeline).
 
 ## 🏛️ 2. Arquitetura da Aplicação
@@ -138,7 +138,6 @@ git push origin teste/simulacao-falha
 * Os testes usam uma chave própria de teste definida em `BibliotecaApplicationTests` (não é usada em execução).
 * O CI não precisa de segredos: build, testes e empacotamento não exigem `JWT_SECRET`. Se um passo futuro precisar, cadastre em **Settings → Secrets and variables → Actions** e use `${{ secrets.NOME }}`.
 * A etapa "Verificar segredos fixos no código" reprova o pipeline se `src/main/resources` tiver um segredo literal.
-* `docker-compose.yml` exige `JWT_SECRET` no ambiente; no Kubernetes, o Deployment lê o segredo `biblioteca-jwt` (veja abaixo).
 * O workflow usa `permissions: contents: read` (menor privilégio).
 * Arquivos `.env` estão no `.gitignore`.
 
@@ -168,11 +167,3 @@ $env:JWT_SECRET = -join ((48..57)+(97..102) | Get-Random -Count 64 | ForEach-Obj
 java -jar target/biblioteca-0.0.1-SNAPSHOT.jar
 ```
 
-**Docker Compose:** `JWT_SECRET=<valor> docker compose up --build`
-
-**Kubernetes:** crie o segredo antes do deploy:
-
-```bash
-kubectl create secret generic biblioteca-jwt --from-literal=JWT_SECRET=$(openssl rand -hex 32)
-kubectl apply -f k8s/
-```
